@@ -458,11 +458,15 @@ fail:
 
 static void bs_glfs_close(struct scsi_lu *lu)
 {
-	if (GFSP(lu)->gfd)
+	if (GFSP(lu)->gfd) {
 		glfs_close(GFSP(lu)->gfd);
+		GFSP(lu)->gfd = NULL;
+	}
 
-	if (GFSP(lu)->gfd)
+	if (GFSP(lu)->fs) {
 		glfs_fini(GFSP(lu)->fs);
+		GFSP(lu)->fs = NULL;
+	}
 }
 
 static char *slurp_to_semi(char **p)
@@ -531,11 +535,15 @@ static void bs_glfs_exit(struct scsi_lu *lu)
 {
 	struct bs_thread_info *info = BS_THREAD_I(lu);
 
-	if (GFSP(lu)->gfd)
+	if (GFSP(lu)->gfd) {
 		glfs_close(GFSP(lu)->gfd);
+		GFSP(lu)->gfd = NULL;
+	}
 
-	if (GFSP(lu)->fs)
+	if (GFSP(lu)->fs) {
 		glfs_fini(GFSP(lu)->fs);
+		GFSP(lu)->fs = NULL;
+	}
 
 	bs_thread_close(info);
 }
