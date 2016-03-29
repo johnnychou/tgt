@@ -26,12 +26,22 @@ The SCSI target package contains the daemon and tools to setup a SCSI targets.
 Currently, software iSCSI targets are supported.
 
 
+%package gluster
+Summary:        Support for the Gluster backstore to scsi-target-utils
+Group:          System Environment/Daemons
+BuildRequires: glusterfs-api-devel
+Requires: %{name}%{?_isa} = %{version}-%{release}
+
+%description gluster
+Adds support for the Gluster glfs backstore to scsi-target-utils.
+
+
 %prep
 %setup -q -n %{name}-%{version}-%{release}
 
 
 %build
-%{__make} %{?_smp_mflags} ISCSI_RDMA=1
+%{__make} %{?_smp_mflags} ISCSI_RDMA=1 GLFS_BD=1 libdir=%{_libdir}/tgt
 
 
 %install
@@ -55,7 +65,7 @@ Currently, software iSCSI targets are supported.
 %{__install} -p -m 0600 conf/targets.conf %{buildroot}/etc/tgt
 
 pushd usr
-%{__make} install DESTDIR=%{buildroot} sbindir=%{_sbindir}
+%{__make} install GLFS_BD=1  DESTDIR=%{buildroot} sbindir=%{_sbindir} libdir=%{_libdir}/tgt
 
 
 %post
@@ -90,3 +100,7 @@ fi
 %{_initrddir}/tgtd
 /etc/bash_completion.d/tgt
 %attr(0600,root,root) %config(noreplace) /etc/tgt/targets.conf
+
+%files gluster
+%{_libdir}/tgt/backing-store/bs_glfs.so
+%doc doc/README.glfs
