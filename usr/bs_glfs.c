@@ -406,7 +406,7 @@ static int bs_glfs_open(struct scsi_lu *lu, char *image, int *fd,
 	char *servername;
 	char *volname;
 	char *pathname;
-	int bsoflags = ALLOWED_BSOFLAGS;
+	int bsoflags = O_RDWR | O_LARGEFILE;
 	glfs_t *fs = 0;
 
 	parse_imagepath(image, &volname, &pathname, &servername);
@@ -429,7 +429,7 @@ static int bs_glfs_open(struct scsi_lu *lu, char *image, int *fd,
 		GFSP(lu)->fs = fs;
 
 		if (lu->bsoflags)
-			bsoflags = lu->bsoflags;
+			bsoflags |= lu->bsoflags;
 
 		gfd = glfs_open(fs, pathname, bsoflags);
 		if (gfd == NULL)
