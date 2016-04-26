@@ -98,6 +98,8 @@ static void bs_glfs_request(struct scsi_cmd *cmd)
 	ret = length = 0;
 	key = asc = 0;
 
+	dprintf("bs_glfs_request: cmd %p opcode %x\n", cmd, cmd->scb[0]);
+
 	switch (cmd->scb[0]) {
 	case ORWRITE_16:
 		length = scsi_get_out_length(cmd);
@@ -411,6 +413,8 @@ static int bs_glfs_open(struct scsi_lu *lu, char *image, int *fd,
 
 	parse_imagepath(image, &volname, &pathname, &servername);
 
+	dprintf("bs_glfs_open: volname %s pathname %s servername %s\n", volname, pathname, servername);
+
 	if (volname && servername && pathname) {
 		glfs_fd_t *gfd = NULL;
 		struct stat st;
@@ -430,6 +434,9 @@ static int bs_glfs_open(struct scsi_lu *lu, char *image, int *fd,
 
 		if (lu->bsoflags)
 			bsoflags |= lu->bsoflags;
+
+		dprintf(
+			"open file: fs %p pathname %s pabsoflags %x\n", fs, pathname, bsoflags);
 
 		gfd = glfs_open(fs, pathname, bsoflags);
 		if (gfd == NULL)
@@ -458,6 +465,8 @@ fail:
 
 static void bs_glfs_close(struct scsi_lu *lu)
 {
+	dprintf("bs_glfs_close: lu %p\n", lu);
+
 	if (GFSP(lu)->gfd) {
 		glfs_close(GFSP(lu)->gfd);
 		GFSP(lu)->gfd = NULL;
@@ -516,6 +525,8 @@ static tgtadm_err bs_glfs_init(struct scsi_lu *lu, char *bsopts)
 	int loglevel = 0;
 	char *sloglevel;
 
+	dprintf("bs_glfs_init: lu %p bsopts %s\n", lu, bsopts);
+
 	while (bsopts && strlen(bsopts)) {
 		if (is_opt("logfile", bsopts))
 			logfile = slurp_value(&bsopts);
@@ -534,6 +545,8 @@ static tgtadm_err bs_glfs_init(struct scsi_lu *lu, char *bsopts)
 static void bs_glfs_exit(struct scsi_lu *lu)
 {
 	struct bs_thread_info *info = BS_THREAD_I(lu);
+
+	dprintf("bs_glfs_exit: lu %p\n", lu);
 
 	if (GFSP(lu)->gfd) {
 		glfs_close(GFSP(lu)->gfd);
